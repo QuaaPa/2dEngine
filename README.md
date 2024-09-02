@@ -1,5 +1,8 @@
-basic game engine written in c++
-![engine](https://i.ibb.co/nzt0zyN/2024-09-02-173213.png)
+## Basic game engine written in c++
+
+<p align="center">
+  <img src="demo.png">
+</p>
 
 ### TODO
 - [x] Docker/FrameBuffer
