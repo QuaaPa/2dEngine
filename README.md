@@ -6,7 +6,7 @@
 
 ### TODO
 - [x] Docker/FrameBuffer
-- [ ] MonitorPerformance
+- [x] MonitorPerformance
 - [ ] Refact
 - [ ] Fix graphics bugs
 - [ ] ...
