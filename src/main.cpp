@@ -3,7 +3,7 @@
 #include "graphics/Graphics.h"
 #include "graphics/Shader.h"
 #include "graphics/FrameBuffer.h"
-#include "UI.h"
+#include "UI/UI.h"
 
 const int WIDTH = 1920;
 const int HEIGHT = 1080;
@@ -100,9 +100,28 @@ int main(void)
         glDrawArrays(GL_TRIANGLES, 0, 6);
         FrameBuffer::unbindFramebuffer();
 
-        model = glm::translate(model, glm::vec3(UI::GetData().m_Position[0], UI::GetData().m_Position[1], UI::GetData().m_Position[2]));
-        // model = glm::rotate(model, glm::radians(1.0f), glm::vec3(UI::GetData().m_Rotation[0], UI::GetData().m_Rotation[1], UI::GetData().m_Rotation[2]));
-        model = glm::scale(model, glm::vec3(UI::GetData().m_Scale[0], UI::GetData().m_Scale[1], UI::GetData().m_Scale[2]));
+        if(UI::GetData().m_Rotation[2] != 0.0f ||
+           UI::GetData().m_Rotation[1] != 0.0f ||
+           UI::GetData().m_Rotation[0] != 0.0f)
+        {
+            model = glm::rotate(model, glm::radians(0.1f), glm::vec3(UI::GetData().m_Rotation[0],
+                                                                     UI::GetData().m_Rotation[1],
+                                                                     UI::GetData().m_Rotation[2]));
+        }
+
+
+        if(UI::GetData().m_Position[2] != 0.0f ||
+           UI::GetData().m_Position[1] != 0.0f ||
+           UI::GetData().m_Position[0] != 0.0f)
+        {
+            model = glm::translate(model, glm::vec3(UI::GetData().m_Position[0] * UI::getDeltaTime(),
+                                                    UI::GetData().m_Position[1] * UI::getDeltaTime(),
+                                                    UI::GetData().m_Position[2] * UI::getDeltaTime()));
+        }
+
+        model = glm::scale(model, glm::vec3(UI::GetData().m_Scale[0],
+                                            UI::GetData().m_Scale[1],
+                                            UI::GetData().m_Scale[2]));
 
         color = glm::vec3(UI::GetData().m_Color[0], UI::GetData().m_Color[1], UI::GetData().m_Color[2]);
 

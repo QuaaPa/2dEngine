@@ -1,7 +1,7 @@
 #include "UI.h"
 
 #include <vector>
-#include <algorithm> // для std::min и std::max
+#include <string>
 
 static const int MAX_FPS_HISTORY = 128;
 
@@ -11,7 +11,6 @@ static int counter = 0;
 
 static ImVec4 m_ClearColor;
 static ImVec4* m_StyleColors;
-static std::string m_Log;
 InspectorData UI::s_Data;
 
 void UI::Init(GLFWwindow* window)
@@ -35,11 +34,18 @@ void UI::Init(GLFWwindow* window)
     ImGui_ImplOpenGL3_Init();
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    Console::Initialize();
 }
 
 InspectorData UI::GetData()
 {
     return s_Data;
+}
+
+float UI::getDeltaTime()
+{
+    return ImGui::GetIO().DeltaTime;
 }
 
 void UI::Run()
@@ -72,39 +78,9 @@ void UI::Shutdown()
     ImGui::DestroyContext();
 }
 
-void UI::LogMessage(const std::string& message)
-{
-    m_Log += message + '\n';
-}
-
 void UI::ShowConsole()
 {
-    ImGui::Begin("Console");
-
-    if(ImGui::Button("Clear"))
-    {
-        m_Log.clear();
-    }
-
-    ImGui::SameLine();
-
-    if(ImGui::Button("g"))
-    {
-        LogMessage(std::to_string(ImGui::GetTime()));
-    }
-
-    ImGui::SameLine();
-
-    if(ImGui::Button("Time"))
-    {
-        LogMessage(std::to_string(ImGui::GetTime()));
-    }
-
-    ImGui::SeparatorText("Log");
-    ImGui::BeginChild("Log");
-    ImGui::TextColored(ImVec4(1, 1, 0, 1), "%s", m_Log.c_str());
-    ImGui::EndChild();
-    ImGui::End();
+    Console::ShowConsole();
 }
 
 void UI::ShowHierarchy()
@@ -123,9 +99,6 @@ void UI::ShowHierarchy()
 
 void UI::ShowInspector()
 {
-    s_Data.m_Position[0] = s_Data.m_Position[1] = s_Data.m_Position[2] = 0.0f;
-    s_Data.m_Rotation[0] = s_Data.m_Rotation[1] = s_Data.m_Rotation[2] = 0.0f;
-    s_Data.m_Scale[0] = s_Data.m_Scale[1] = s_Data.m_Scale[2] = 1.0f;
     ImGui::Begin("Inspector");
 
     ImGui::SeparatorText("Triangle");
@@ -134,7 +107,7 @@ void UI::ShowInspector()
     {
         ImGui::Text("Transform");
         ImGui::DragFloat3("Position", s_Data.m_Position, 0.02f, -1.0f, 1.0f);
-        ImGui::DragFloat3("Rotation", s_Data.m_Rotation, 0.04f, -1.0f, 1.0f);
+        ImGui::DragFloat3("Rotation", s_Data.m_Rotation, 0.04f, 0.0f, 1.0f);
         ImGui::DragFloat3("Scale", s_Data.m_Scale, 0.01f, 1.0f, 1.0f);
     }
     ImGui::EndGroup();
@@ -153,9 +126,10 @@ void UI::ShowInspector()
 
 void UI::ShowMonitorPerformance()
 {
+    float FPS = ImGui::GetIO().Framerate;
     if(fpsHistory.size() <= MAX_FPS_HISTORY)
     {
-        fpsHistory.push_back(ImGui::GetIO().Framerate);
+        fpsHistory.push_back(FPS);
     }
     if (counter >= 20)
     {
@@ -173,9 +147,10 @@ void UI::ShowMonitorPerformance()
     ImGui::Text("GLSL : %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     ImGui::TextColored(ImVec4(0,1,0,1), "Application average %.3f ms/frame (%.1f FPS)",
-                                        1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                                        1000.0f / FPS, FPS);
 
-    ImGui::PlotLines("", fpsHistory.data(), fpsHistory.size(), 0, "max: 1024graph", 0.0f, 1024.0f, ImVec2(0, 80));
+    std::string deltaTime = "dTime:" + std::to_string(ImGui::GetIO().DeltaTime);
+    ImGui::PlotLines("", fpsHistory.data(), (int)fpsHistory.size(), 0, deltaTime.c_str(), 0.0f, 1024, ImVec2(0, 80));
 
     ImGui::SeparatorText("Framerate mode");
 
