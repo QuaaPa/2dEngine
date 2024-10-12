@@ -1,5 +1,3 @@
-## The GameEngine is built using the ImGui interface and OpenGL graphics
-
 <p align="center">
   <img src="demo.png">
 </p>
